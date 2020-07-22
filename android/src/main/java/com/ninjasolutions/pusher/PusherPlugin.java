@@ -27,6 +27,7 @@ import com.pusher.client.util.UrlEncodedConnectionFactory;
 import org.json.JSONObject;
 
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -135,7 +136,8 @@ public class PusherPlugin implements MethodCallHandler {
             if (options.has("auth")) {
                 final JSONObject auth = options.getJSONObject("auth");
                 final String endpoint = auth.getString("endpoint");
-                final Type mapType = new TypeToken<Map<String, String>>() {}.getType();
+                final Type mapType = new TypeToken<Map<String, String>>() {
+                }.getType();
                 final Map<String, String> headers = new Gson().fromJson(auth.get("headers").toString(), mapType);
 
                 pusherOptions.setAuthorizer(getAuthorizer(endpoint, headers));
@@ -520,17 +522,73 @@ class PresenceChannelChannelListener extends EventChannelListener implements Pre
 
     @Override
     public void onUsersInformationReceived(String channelName, Set<User> users) {
-        this.onEvent(toPusherEvent(channelName, SUBSCRIPTION_SUCCESS_EVENT, null, users.toString()));
+        try {
+            if (users.isEmpty()) {
+                this.onEvent(toPusherEvent(channelName, SUBSCRIPTION_SUCCESS_EVENT, null, null));
+                return;
+            }
+
+            final JSONObject subscriptionData = new JSONObject();
+            final JSONObject usersData = new JSONObject();
+
+            final JSONObject hash = new JSONObject();
+            final ArrayList<String> ids = new ArrayList<String>();
+
+            Object[] userArray = users.toArray();
+
+            assert userArray != null;
+            for (Object rawUser : userArray) {
+                User user = (User) rawUser;
+                ids.add(user.getId());
+                hash.put(user.getId(), user.getInfo());
+            }
+
+            usersData.put("hash", hash);
+            usersData.put("ids", ids);
+            usersData.put("count", users.size());
+
+            subscriptionData.put("presence", usersData);
+
+            this.onEvent(toPusherEvent(channelName, SUBSCRIPTION_SUCCESS_EVENT, null, subscriptionData.toString()));
+        } catch (Exception e) {
+            onError(e);
+        }
     }
 
     @Override
     public void userSubscribed(String channelName, User user) {
-        this.onEvent(toPusherEvent(channelName, MEMBER_ADDED_EVENT, user.getId(), null));
+        try {
+            if (user == null) {
+                return;
+            }
+
+            final JSONObject usersData = new JSONObject();
+
+            usersData.put("userId", user.getId());
+            usersData.put("userInfo", user.getInfo());
+
+            this.onEvent(toPusherEvent(channelName, MEMBER_ADDED_EVENT, user.getId(), usersData.toString()));
+        } catch (Exception e) {
+            onError(e);
+        }
     }
 
     @Override
     public void userUnsubscribed(String channelName, User user) {
-        this.onEvent(toPusherEvent(channelName, MEMBER_REMOVED_EVENT, user.getId(), null));
+        try {
+            if (user == null) {
+                return;
+            }
+
+            final JSONObject usersData = new JSONObject();
+
+            usersData.put("userId", user.getId());
+            usersData.put("userInfo", user.getInfo());
+
+            this.onEvent(toPusherEvent(channelName, MEMBER_REMOVED_EVENT, user.getId(), usersData.toString()));
+        } catch (Exception e) {
+            onError(e);
+        }
     }
 }
 

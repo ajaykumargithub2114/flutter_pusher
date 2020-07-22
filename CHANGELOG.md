@@ -1,3 +1,8 @@
+## 1.0.3
+
+- Optimised callbacks for presence channel events
+- Fixed [Issue#6](https://github.com/ninjasolutions/flutter_pusher/issues/6)
+
 ## 1.0.2
 
 - Fixes Android build error with missing trigger method. By @athornz
