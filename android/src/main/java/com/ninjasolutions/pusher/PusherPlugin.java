@@ -5,6 +5,7 @@ import android.os.Looper;
 import android.util.Log;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.reflect.TypeToken;
@@ -24,6 +25,7 @@ import com.pusher.client.util.ConnectionFactory;
 import com.pusher.client.util.HttpAuthorizer;
 import com.pusher.client.util.UrlEncodedConnectionFactory;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.lang.reflect.Type;
@@ -543,8 +545,10 @@ class PresenceChannelChannelListener extends EventChannelListener implements Pre
                 hash.put(user.getId(), user.getInfo());
             }
 
+
+
             usersData.put("hash", hash);
-            usersData.put("ids", ids);
+            usersData.put("ids", new JSONArray(ids));
             usersData.put("count", users.size());
 
             subscriptionData.put("presence", usersData);
