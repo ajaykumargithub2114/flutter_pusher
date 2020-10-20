@@ -1,6 +1,7 @@
+import 'dart:convert';
+
 import 'package:flutter/services.dart';
 import 'package:json_annotation/json_annotation.dart';
-import 'dart:convert';
 
 part 'pusher.g.dart';
 
@@ -68,6 +69,13 @@ class Pusher {
   static Future<Channel> subscribe(String channelName) async {
     await _channel.invokeMethod('subscribe', channelName);
     return Channel(name: channelName);
+  }
+
+  /// Subscribe to a channel
+  /// Use the returned [Channel] to bind events
+  static Future<String> getUsers(String channelName) async {
+    String result = await _channel.invokeMethod('getUsers', channelName);
+    return result;
   }
 
   /// Unsubscribe from a channel

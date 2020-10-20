@@ -15,6 +15,7 @@ import com.pusher.client.channel.Channel;
 import com.pusher.client.channel.ChannelEventListener;
 import com.pusher.client.channel.PresenceChannelEventListener;
 import com.pusher.client.channel.PrivateChannel;
+import com.pusher.client.channel.PresenceChannel;
 import com.pusher.client.channel.PrivateChannelEventListener;
 import com.pusher.client.channel.PusherEvent;
 import com.pusher.client.channel.User;
@@ -96,6 +97,9 @@ public class PusherPlugin implements MethodCallHandler {
                 break;
             case "subscribe":
                 subscribe(call, result);
+                break;
+            case "getUsers":
+                getUsers(call, result);
                 break;
             case "unsubscribe":
                 unsubscribe(call, result);
@@ -298,6 +302,76 @@ public class PusherPlugin implements MethodCallHandler {
 
         channels.put(channelName, channel);
         result.success(null);
+    }
+
+    private void getUsers(MethodCall call, Result result) {
+        final String channelName = call.arguments.toString();
+        final String channelType = channelName.split("-")[0];
+        Channel channel = channels.get(channelName);
+
+        if (channel == null) {
+            if (isLoggingEnabled) {
+                Log.d(TAG, "getUsers  : channel not found");
+            }
+            result.success(null);
+            return;
+        }
+        if (!channel.isSubscribed()) {
+            if (isLoggingEnabled) {
+                Log.d(TAG, "getUsers  : Channel is not subscribed");
+            }
+            result.success(null);
+            return;
+        }
+        if (!channelType.equals("presence")) {
+            if (isLoggingEnabled) {
+                Log.d(TAG, "getUsers  : " + channelName + " | Invaild channel type *" + channelType + "*" + "------presence");
+            }
+            result.success(null);
+            return;
+        }
+
+        Set<User> users = ((PresenceChannel) channel).getUsers();
+
+        try {
+            if (users.isEmpty()) {
+                if (isLoggingEnabled) {
+                    Log.d(TAG, "getUsers  : No Members");
+                }
+                result.success(null);
+                return;
+            }
+
+            final JSONObject subscriptionData = new JSONObject();
+            final JSONObject usersData = new JSONObject();
+
+            final JSONObject hash = new JSONObject();
+            final ArrayList<String> ids = new ArrayList<String>();
+
+            Object[] userArray = users.toArray();
+
+            assert userArray != null;
+            for (Object rawUser : userArray) {
+                User user = (User) rawUser;
+                ids.add(user.getId());
+                hash.put(user.getId(), user.getInfo());
+            }
+
+
+            usersData.put("hash", hash);
+            usersData.put("ids", new JSONArray(ids));
+            usersData.put("count", users.size());
+
+            subscriptionData.put("presence", usersData);
+            result.success(subscriptionData.toString());
+
+        } catch (Exception e) {
+            if (isLoggingEnabled) {
+                Log.d(TAG, "getUsers  : Error   %s", e);
+            }
+            result.success(null);
+        }
+
     }
 
     private void unsubscribe(MethodCall call, Result result) {
@@ -544,7 +618,6 @@ class PresenceChannelChannelListener extends EventChannelListener implements Pre
                 ids.add(user.getId());
                 hash.put(user.getId(), user.getInfo());
             }
-
 
 
             usersData.put("hash", hash);
