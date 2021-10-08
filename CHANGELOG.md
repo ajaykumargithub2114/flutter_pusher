@@ -1,7 +1,10 @@
+## 1.0.4
+
+- Fixes data being ignored when data is a list instead of a JSON object. (@josh-burton)
+
 ## 1.0.3
 
-- Optimised callbacks for presence channel events
-- Fixed [Issue#6](https://github.com/ninjasolutions/flutter_pusher/issues/6)
+- Update PusherSwift library from 7.2.0 to 8.0.0
 
 ## 1.0.2
 
