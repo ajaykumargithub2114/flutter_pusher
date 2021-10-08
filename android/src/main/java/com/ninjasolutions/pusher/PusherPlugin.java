@@ -42,28 +42,50 @@ import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.MethodChannel.Result;
 import io.flutter.plugin.common.PluginRegistry.Registrar;
 
+import androidx.annotation.NonNull;
+
+import io.flutter.embedding.engine.plugins.FlutterPlugin;
+
 import static com.ninjasolutions.pusher.PusherPlugin.TAG;
 
 /**
  * PusherPlugin
  */
-public class PusherPlugin implements MethodCallHandler {
+public class PusherPlugin implements FlutterPlugin, MethodCallHandler {
     private static Pusher pusher;
     private static Map<String, Channel> channels = new HashMap<>();
     private static EventChannelListener eventListener;
     private static PrivateChannelChannelListener eventListenerPrivate;
     private static PresenceChannelEventListener eventListenerPresence;
-
+    private MethodChannel channel;
+    private EventChannel eventStream;
     static String TAG = "PusherPlugin";
     static EventChannel.EventSink eventSink;
     static boolean isLoggingEnabled = false;
+
+    @Override
+    public void onAttachedToEngine(@NonNull FlutterPluginBinding flutterPluginBinding) {
+        channel = new MethodChannel(flutterPluginBinding.getBinaryMessenger(), "plugins.indoor.solutions/pusher");
+        eventStream = new EventChannel(flutterPluginBinding.getBinaryMessenger(), "plugins.indoor.solutions/pusherStream");
+        init();
+    }
+
+    @Override
+    public void onDetachedFromEngine(@NonNull FlutterPluginBinding binding) {
+        channel.setMethodCallHandler(null);
+        eventStream.setStreamHandler(null);
+    }
 
     /**
      * Plugin registration.
      */
     public static void registerWith(Registrar registrar) {
-        final MethodChannel channel = new MethodChannel(registrar.messenger(), "plugins.indoor.solutions/pusher");
-        final EventChannel eventStream = new EventChannel(registrar.messenger(), "plugins.indoor.solutions/pusherStream");
+        channel = new MethodChannel(registrar.messenger(), "plugins.indoor.solutions/pusher");
+        eventStream = new EventChannel(registrar.messenger(), "plugins.indoor.solutions/pusherStream");
+        init();
+    }
+
+    private static void init() {
 
         eventListener = new EventChannelListener();
         eventListenerPrivate = new PrivateChannelChannelListener();
@@ -82,6 +104,7 @@ public class PusherPlugin implements MethodCallHandler {
             }
         });
     }
+
 
     @Override
     public void onMethodCall(MethodCall call, Result result) {
@@ -476,7 +499,6 @@ public class PusherPlugin implements MethodCallHandler {
         }
     }
 }
-
 
 class JsonEncodedConnectionFactory extends ConnectionFactory {
 
