@@ -8,11 +8,11 @@ part of 'pusher.dart';
 
 InitArgs _$InitArgsFromJson(Map<String, dynamic> json) {
   return InitArgs(
-    json['appKey'] as String,
+    json['appKey'] as String?,
     json['options'] == null
         ? null
         : PusherOptions.fromJson(json['options'] as Map<String, dynamic>),
-    isLoggingEnabled: json['isLoggingEnabled'] as bool,
+    isLoggingEnabled: json['isLoggingEnabled'] as bool?,
   );
 }
 
@@ -24,9 +24,9 @@ Map<String, dynamic> _$InitArgsToJson(InitArgs instance) => <String, dynamic>{
 
 BindArgs _$BindArgsFromJson(Map<String, dynamic> json) {
   return BindArgs(
-    channelName: json['channelName'] as String,
-    eventName: json['eventName'] as String,
-    data: json['data'] as String,
+    channelName: json['channelName'] as String?,
+    eventName: json['eventName'] as String?,
+    data: json['data'] as String?,
   );
 }
 
@@ -41,11 +41,11 @@ PusherOptions _$PusherOptionsFromJson(Map<String, dynamic> json) {
     auth: json['auth'] == null
         ? null
         : PusherAuth.fromJson(json['auth'] as Map<String, dynamic>),
-    cluster: json['cluster'] as String,
-    host: json['host'] as String,
-    port: json['port'] as int,
-    encrypted: json['encrypted'] as bool,
-    activityTimeout: json['activityTimeout'] as int,
+    cluster: json['cluster'] as String?,
+    host: json['host'] as String?,
+    port: json['port'] as int?,
+    encrypted: json['encrypted'] as bool?,
+    activityTimeout: json['activityTimeout'] as int?,
   );
 }
 
@@ -69,8 +69,8 @@ Map<String, dynamic> _$PusherOptionsToJson(PusherOptions instance) {
 
 PusherAuth _$PusherAuthFromJson(Map<String, dynamic> json) {
   return PusherAuth(
-    json['endpoint'] as String,
-    headers: (json['headers'] as Map<String, dynamic>)?.map(
+    json['endpoint'] as String?,
+    headers: (json['headers'] as Map<String, dynamic>?)?.map(
       (k, e) => MapEntry(k, e as String),
     ),
   );
@@ -85,8 +85,8 @@ Map<String, dynamic> _$PusherAuthToJson(PusherAuth instance) =>
 ConnectionStateChange _$ConnectionStateChangeFromJson(
     Map<String, dynamic> json) {
   return ConnectionStateChange(
-    currentState: json['currentState'] as String,
-    previousState: json['previousState'] as String,
+    currentState: json['currentState'] as String?,
+    previousState: json['previousState'] as String?,
   );
 }
 
@@ -99,9 +99,9 @@ Map<String, dynamic> _$ConnectionStateChangeToJson(
 
 ConnectionError _$ConnectionErrorFromJson(Map<String, dynamic> json) {
   return ConnectionError(
-    message: json['message'] as String,
-    code: json['code'] as String,
-    exception: json['exception'] as String,
+    message: json['message'] as String?,
+    code: json['code'] as String?,
+    exception: json['exception'] as String?,
   );
 }
 
@@ -114,9 +114,9 @@ Map<String, dynamic> _$ConnectionErrorToJson(ConnectionError instance) =>
 
 Event _$EventFromJson(Map<String, dynamic> json) {
   return Event(
-    channel: json['channel'] as String,
-    event: json['event'] as String,
-    data: json['data'] as String,
+    channel: json['channel'] as String?,
+    event: json['event'] as String?,
+    data: json['data'] as String?,
   );
 }
 
